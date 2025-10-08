@@ -869,35 +869,33 @@ background: linear-gradient(120deg, #1E3A8A 0%, #2563EB 50%, #38BDF8 100%);
 
 
 <script>
-async function registrarClick(negocioId, elemento) {
-  const API_URL = "https://k4j6oqjh10.execute-api.us-east-1.amazonaws.com/prod"; // tu URL real
+async function registrarClick(negocio, elemento) {
+  const dispositivo = /Mobi/i.test(navigator.userAgent) ? "mobile" : "desktop";
 
-  const payload = {
-    id: crypto.randomUUID(),
-    negocio_id: negocioId,
+  const data = {
+    negocio_id: negocio,
     elemento: elemento,
-    fecha: new Date().toISOString(),
-    dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
+    dispositivo: dispositivo
   };
+
+  // Cambia por TU URL real
+  const API_URL = "https://2l1mq09nwf.execute-api.us-east-1.amazonaws.com/";
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(data)
     });
-    if (res.ok) {
-      console.log("✅ Click guardado en AWS DynamoDB");
-    } else {
-      console.error("❌ Error al guardar:", await res.text());
-    }
+
+    const result = await res.json();
+    console.log("✅ Click guardado:", result);
   } catch (err) {
-    console.error("❌ Error de red:", err);
+    console.error("❌ Error:", err);
   }
 }
-
-
 </script>
+
 
 
 
