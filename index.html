@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/png" href="./img/logo.png"   />
+
+  <title>Ando Vineando: Apoya negocios de locales en el Pacífico Sur</title>
+  <!-- AOS CSS -->
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">  <!-- Leaflet -->
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+
+
+
+
+
+
+  <style>
+    .body { font-family: 'Lato', sans-serif; }
+    html, body { height: 100%; }
+    #map { height: 35vh; border-radius: 1rem; }
+    .category-dot { width: 10px; height: 10px; border-radius: 999px; display: inline-block; margin-right: .4rem; }
+    .leaflet-popup-content-wrapper { border-radius: .75rem; }
+    .marker-hotel { background: #1d4ed8; }
+    .marker-rest { background: #059669; }
+    .marker-trans { background: #eab308; }
+    .marker-tour { background: #dc2626; }
+    .sticky-card { position: sticky; top: 1rem; }
+    /* Etiqueta fija encima del punto */
+    
+@media (min-width: 992px) {
+  #map { height: 60vh; }
+}
+.leaflet-tooltip.biz-label {
+  background: rgba(255,255,255,0.9);
+  border: 0;
+  border-radius: .5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  padding: 2px 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #111;
+}
+.leaflet-tooltip.biz-label::before { display: none; } /* sin flechita */
+
+
+/* Enlaces sin subrayado para acciones */
+.link-plain { text-decoration: none !important; color: #000000; }
+.link-plain:hover { text-decoration: none !important; opacity: .85; }
+
+/* Imagen arriba de la card */
+.card-img-top.biz-cover {
+  height: 140px;
+  object-fit: cover;
+  border-top-left-radius: .5rem;
+  border-top-right-radius: .5rem;
+}
+
+/* Imagen dentro del popup del mapa */
+.leaflet-popup-content img.biz-popup {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: .5rem;
+  margin-bottom: .5rem;
+}
+
+.navbar-brand .navbar-logo {
+  height: 20px; /* tu tamaño base */
+  width: auto;
+  display: block;
+  transform: scale(2.5); /* ×1.5 del tamaño original */
+  transform-origin: center; /* centra el escalado */
+}
+
+.card-img-top.biz-cover,
+.carousel-inner img {
+  height: 200px;   /* o 400px si las querés grandes */
+  object-fit: cover; /* mantiene la proporción y recorta el exceso */
+}
+
+
+  </style>
+</head>
+
+<body class="bg-light">
+
+
+
+  <nav class="navbar navbar-expand-lg bg-white border-bottom shadow-sm sticky-top">
+  <div class="container">
+    <!-- Marca con logo -->
+    <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+      <!-- Cambiá la ruta del logo por la tuya -->
+      <img src="./img/logo.png" alt="¡Ando Vineando!" class="navbar-logo">
+      <span class="fw-semibold">Ando Vineando</span>
+    </a>
+
+    
+
+ 
+  </div>
+</nav>
+
+
+
+
+
+
+<section id="sobre" class="py-5 bg-white border-top">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8">
+        <h2 class="fw-bold hb-4" data-aos="fade-up">
+          ¡Bienvenidos a <span class="text-primary" style="margin-top: 50px; margin-bottom: 50px;">Ando Vineando!</span>
+        </h2>
+
+        <p class="lead text-dark" data-aos="fade-up" data-aos-delay="500">
+          <strong>El proyecto</strong> nace como una alternativa frente al proceso creciente de 
+          <em>gentrificación</em> que viven muchas comunidades en el Pacífico Sur de Costa Rica. 
+          Este proyecto resalta lo nuestro: <strong>negocios nacionales verificados</strong>.
+        </p>
+
+        <p class="lead text-dark" data-aos="fade-up" data-aos-delay="1000">
+          Aquí encontrarás <strong> hoteles, restaurantes, galerias de arte, transporte privado, tour operadores, y más.</strong> 
+          100% costarricenses, impulsados por familias y emprendedores locales. 
+          Más que un simple directorio, <em>Ando Vineando</em> es un puente entre quienes buscan experiencias auténticas 
+          y quienes las ofrecen con dedicación y arraigo cultural.
+        </p>
+
+        <p class=" lead text-darl mb-4" data-aos="fade-up" data-aos-delay="1500">
+          Cada visita, reserva o consumo se convierte en un acto de apoyo a la economía local 
+          y una forma de resistir la homogenización que trae la gentrificación. 
+          Aquí celebramos la <strong>identidad costarricense</strong>, 
+          el talento emprendedor y la riqueza de nuestras comunidades.
+        </p>
+
+        <a href="#map" class="btn btn-primary btn-lg rounded-pill" style="background: linear-gradient(120deg, #1E3A8A 0%, #2563EB 50%, #38BDF8 100%); border-color: linear-gradient(120deg, #1E3A8A 0%, #2563EB 50%, #38BDF8 100%);
+;
+" data-aos="zoom-in" data-aos-delay="2000">
+          <i class="bi bi-search me-2"></i>Explorar negocios
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+  <main class="container my-4">
+
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="card sticky-card shadow-sm">
+          <div class="card-body">
+            <h1 class="h4 mb-3">Negocios nacionales</h1>
+            <p class="text-dark mb-3">Elige al categoría de tu interés abajo, y explora más de 100 negocios locales. <br><br>Cuando consumes lo nuestro estás apoyando el desarrollo económico del Pacífico Sur.</p>
+
+      
+
+            <div class="mb-2"><small class="text-dark">Categorías</small></div>
+            <div class="d-flex flex-wrap gap-2 mb-3" id="catBtns"></div>
+            <div class="d-flex gap-2 mb-3">
+              <button id="allBtn" class="btn btn-outline-secondary btn-sm">Todas</button>
+              <button id="noneBtn" class="btn btn-outline-secondary btn-sm">Ninguna</button>
+            </div>
+
+       
+            <div id="list" class="vstack gap-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div id="map" class="shadow"></div>
+      </div>
+    </div>
+  </main>
+
+ 
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+  <!-- App: Vanilla JS + Supabase (ESM) -->
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+    // ---- Categorías ----
+    const CATS = [
+      { id: 'Hospedaje', name: 'Hospedaje', color: '#30B8AA', dot: 'marker-hotel' },
+      { id: 'restaurante', name: 'Restaurante', color: '#059669', dot: 'marker-rest' },
+      { id: 'transporte', name: 'Transporte privado', color: '#eab308', dot: 'marker-trans' },
+      { id: 'tour', name: 'Tour operador', color: '#dc2626', dot: 'marker-tour' },
+      { id: 'galeria de arte', name: 'Galería de Arte', color: '#8fce00', dot: 'marker-galeria' },
+      { id: 'spa', name: 'Spa', color: '#BC3AF0', dot: 'marker-spa' },
+      { id: 'cafetería', name: 'Cafetería', color: '#C28559', dot: 'marker-cafeterias' },
+      { id: 'panadería', name: 'Panadería', color: '#DBC91A', dot: 'marker-spa' },
+      { id: 'heladería', name: 'Heladería', color: '#389C45', dot: 'marker-spa' },
+      { id: 'soda', name: 'Soda', color: '#08BBF7', dot: 'marker-spa' },
+      { id: 'comida internacional', name: 'Comida Internacional', color: '#350472', dot: 'marker-spa' },
+      { id: 'fotografía', name: 'Fotografía', color: '#6196FA', dot: 'marker-spa' },
+      { id: 'alquiler de vehiculos', name: 'Alquiler de Vehículos', color: '#030000', dot: 'marker-spa' },
+      { id: 'souvenirs', name: 'Souvenirs', color: '#C25353', dot: 'marker-spa' },
+      { id: 'productores locales', name: 'Productores Locales', color: '#53C253', dot: 'marker-spa' },
+      { id: 'limpieza', name: 'Servicio de limpieza', color: '#6E6E6E', dot: 'marker-spa' },
+      { id: 'mantenimiento', name: 'Mantenimiento', color: '#FF7400', dot: 'marker-spa' },
+      { id: 'idiomas', name: 'Enseñanza de Idiomas', color: '#8C00FF', dot: 'marker-spa' },
+      { id: 'veterinaria', name: 'Veterinaria', color: '#9EC229', dot: 'marker-spa' },
+      { id: 'mecanico', name: 'Mécanico', color: '#1AFF00', dot: 'marker-spa' },
+      { id: 'servicio legal', name: 'Servicio Legal', color: '#002AFF', dot: 'marker-spa' },
+
+    ];
+
+    // ---- Fallback demo data ----
+const DEMO = [
+  { 
+    id: 1, 
+    name: 'Hotel Bahía Azul', 
+    category: 'Hospedaje', 
+    lat: 9.1542, lng: -83.7393, 
+    canton: 'Osa', province: 'Puntarenas', 
+    phone: '+506 8888 1111', whatsapp: '88881111', website: 'https://example.com', 
+    verified: true, is_national: true, 
+    catalogo: "/pdfs/menudonamary.pdf",
+    facebook: "https://facebook.com/sodadonamary",
+    instagram: "https://instagram.com/sodadonamary",
+    tiktok: "https://www.tiktok.com/@sodadonamary",
+    images: [
+      'https://picsum.photos/seed/hotel-bahia-azul1/800/450',
+      'https://picsum.photos/seed/hotel-bahia-azul2/800/450',
+      'https://picsum.photos/seed/hotel-bahia-azul3/800/450'
+    ]
+  },
+  { 
+    id: 2, 
+    name: 'Soda Tica Doña Mary', 
+    category: 'soda', 
+    lat: 9.1627, lng: -83.7412, 
+    canton: 'Osa', province: 'Puntarenas', 
+    phone: '+506 8888 2222', whatsapp: '88882222', website: 'https://example.com', 
+  catalogo: "/pdfs/menudonamary.pdf",
+    facebook: "https://facebook.com/sodadonamary",
+    instagram: "https://instagram.com/sodadonamary",
+    tiktok: "https://www.tiktok.com/@sodadonamary",
+    verified: true, is_national: true, 
+    images: [
+      'https://picsum.photos/seed/soda-dona-mary1/800/450',
+      'https://picsum.photos/seed/soda-dona-mary2/800/450',
+      'https://picsum.photos/seed/soda-dona-mary3/800/450'
+    ]
+  },
+  { 
+    id: 3, 
+    name: 'Uvita Private Rides', 
+    category: 'transporte', 
+    lat: 9.154, lng: -83.736, 
+    canton: 'Osa', province: 'Puntarenas', 
+    phone: '+506 8888 3333', whatsapp: '88883333', website: 'https://wa.me/50688883333', 
+     catalogo: "/pdfs/menudonamary.pdf",
+    facebook: "https://facebook.com/sodadonamary",
+    instagram: "https://instagram.com/sodadonamary",
+    tiktok: "https://www.tiktok.com/@sodadonamary",
+    verified: true, is_national: true, 
+    images: [
+      'https://picsum.photos/seed/uvita-private-rides1/800/450',
+      'https://picsum.photos/seed/uvita-private-rides2/800/450',
+      'https://picsum.photos/seed/uvita-private-rides3/800/450'
+    ]
+  },
+  { 
+    id: 4, 
+    name: 'Ballena Tours CR', 
+    category: 'tour', 
+    lat: 9.1599, lng: -83.742, 
+    canton: 'Osa', province: 'Puntarenas', 
+    phone: '+506 8888 4444', whatsapp: '88884444', website: 'https://example.com', 
+    verified: true, is_national: true, 
+     catalogo: "/pdfs/menudonamary.pdf",
+    facebook: "https://facebook.com/sodadonamary",
+    instagram: "https://instagram.com/sodadonamary",
+    tiktok: "https://www.tiktok.com/@sodadonamary",
+    images: [
+      'https://picsum.photos/seed/ballena-tours-cr1/800/450',
+      'https://picsum.photos/seed/ballena-tours-cr2/800/450',
+      'https://picsum.photos/seed/ballena-tours-cr3/800/450'
+    ]
+  },
+  { 
+    id: 5, 
+    name: 'La Galería Tropical', 
+    category: 'galeria de arte', 
+    lat: 9.1645, lng: -83.7393, 
+    canton: 'Osa', province: 'Puntarenas', 
+    phone: '+506 8888 1111', whatsapp: '88881111', website: 'https://example.com', 
+    verified: true, is_national: true, 
+     catalogo: "/pdfs/menudonamary.pdf",
+    facebook: "https://facebook.com/sodadonamary",
+    instagram: "https://instagram.com/sodadonamary",
+    tiktok: "https://www.tiktok.com/@sodadonamary",
+    images: [
+      'https://picsum.photos/seed/galeria-tropical1/800/450',
+      'https://picsum.photos/seed/galeria-tropical2/800/450',
+      'https://picsum.photos/seed/galeria-tropical3/800/450'
+    ]
+  }
+];
+
+
+
+    // ---- State ----
+    let items = [...DEMO];
+    
+// antes: let activeCats = new Set(CATS.map(c => c.id));
+let activeCats = new Set();
+    let markers = [];
+
+
+
+    // ---- Elements ----
+    const modeAlert = document.getElementById('modeAlert');
+    const listEl = document.getElementById('list');
+    const countSpan = document.getElementById('countSpan');
+const searchInput = document.getElementById('searchInput'); // puede no existir
+if (searchInput) searchInput.addEventListener('input', () => render());
+
+    // ---- Map ----
+    const map = L.map('map');
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' });
+    osm.addTo(map);
+    map.setView([9.1546, -83.7393], 11);
+
+    // Crear el botón "Mi ubicación"
+const locateButton = L.control({ position: "topleft" });
+
+locateButton.onAdd = function(map) {
+  const button = L.DomUtil.create("button", "locate-button");
+  button.innerHTML = "📍 Mi ubicación";
+  button.style.backgroundColor = "#16a34a";
+  button.style.color = "white";
+  button.style.border = "none";
+  button.style.borderRadius = "8px";
+  button.style.padding = "8px 12px";
+  button.style.cursor = "pointer";
+  button.style.fontWeight = "bold";
+  button.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)";
+
+  button.onclick = function() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        // ✅ Éxito
+        function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          const accuracy = position.coords.accuracy;
+
+          // Centrar el mapa en la posición
+          const userLatLng = [lat, lng];
+          map.setView(userLatLng, 15);
+
+          // Marcador y círculo de precisión
+          L.marker(userLatLng)
+            .addTo(map)
+            .bindPopup(`📍 Estás aquí<br>Precisión: ${Math.round(accuracy)} m`)
+            .openPopup();
+
+          L.circle(userLatLng, {
+            radius: accuracy,
+            color: "#16a34a",
+            fillColor: "#86efac",
+            fillOpacity: 0.3
+          }).addTo(map);
+        },
+        // ⚠️ Error
+        function(error) {
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              alert("Debes permitir el acceso a tu ubicación para usar esta función.");
+              break;
+            case error.POSITION_UNAVAILABLE:
+              alert("No se pudo determinar tu ubicación.");
+              break;
+            case error.TIMEOUT:
+              alert("La solicitud de ubicación tardó demasiado.");
+              break;
+            default:
+              alert("Ocurrió un error al obtener tu ubicación.");
+          }
+        },
+        // ⚙️ Configuración
+        {
+          enableHighAccuracy: true,  // 🔹 Usa GPS si está disponible
+          timeout: 10000,            // 10 segundos máximo
+          maximumAge: 0
+        }
+      );
+    } else {
+      alert("Tu navegador no soporta geolocalización.");
+    }
+  };
+
+  return button;
+};
+
+// Añadir el botón al mapa
+locateButton.addTo(map);
+
+
+    // click-to-fill coords for suggestion modal
+    map.on('click', (e) => {
+      document.getElementById('latInput').value = e.latlng.lat.toFixed(6);
+      document.getElementById('lngInput').value = e.latlng.lng.toFixed(6);
+    });
+
+    // ---- Category buttons ----
+    const catBtns = document.getElementById('catBtns');
+    CATS.forEach((c) => {
+      const btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-outline-primary';
+      btn.innerHTML = `<span class="category-dot" style="background:${c.color}"></span>${c.name}`;
+      btn.dataset.id = c.id;
+      btn.onclick = () => {
+        if (activeCats.has(c.id)) activeCats.delete(c.id); else activeCats.add(c.id);
+        btn.classList.toggle('btn-outline-primary');
+        btn.classList.toggle('btn-primary');
+        render();
+      };
+      // start active
+  
+      catBtns.appendChild(btn);
+    });
+    document.getElementById('allBtn').onclick = () => { activeCats = new Set(CATS.map(c => c.id)); [...catBtns.children].forEach(b=>{b.classList.add('btn-primary'); b.classList.remove('btn-outline-primary');}); render(); };
+    document.getElementById('noneBtn').onclick = () => { activeCats = new Set(); [...catBtns.children].forEach(b=>{b.classList.add('btn-outline-primary'); b.classList.remove('btn-primary');}); render(); };
+
+    searchInput.addEventListener('input', () => render());
+
+    // ---- Supabase connection ----
+    function getCreds(){
+      return {
+        url: localStorage.getItem('SUPABASE_URL') || '',
+        key: localStorage.getItem('SUPABASE_ANON_KEY') || ''
+      };
+    }
+    let sb = null;
+    async function tryConnect(){
+      const { url, key } = getCreds();
+      if (!url || !key) { modeAlert.classList.remove('d-none'); return; }
+      sb = createClient(url, key);
+      modeAlert.classList.add('d-none');
+      await loadBusinesses();
+    }
+
+    async function loadBusinesses(){
+      try {
+        const { data, error } = await sb
+          .from('business')
+          .select('id, name, category, lat, lng, canton, province, phone, whatsapp, website, verified, is_national')
+          .eq('verified', true)
+          .eq('is_national', true)
+          .limit(2000);
+        if (error) throw error;
+        items = data && data.length ? data : DEMO;
+        render();
+      } catch (e) {
+        console.warn('Fallo al cargar negocios, usando demo', e);
+        items = [...DEMO];
+        modeAlert.classList.remove('d-none');
+        render();
+      }
+    }
+    
+
+    // ---- Render list + markers ----
+    function makeWaLink(raw, msg='Hola, vi tu contacto en el directorio 🇨🇷'){
+      const digits = (raw||'').replace(/\D/g,'');
+      if (!digits) return '#';
+      const cr = digits.startsWith('506') ? digits : `506${digits}`;
+      return `https://wa.me/${cr}?text=${encodeURIComponent(msg)}`;
+    }
+
+    function render(){
+      // filter
+  const q = (searchInput?.value || '').trim().toLowerCase();
+
+const filtered = items.filter(b => {
+  const inCat = activeCats.has(b.category);
+  // si no hay buscador, no se filtra por texto
+  const inQuery = !searchInput || !q
+    || b.name.toLowerCase().includes(q)
+    || (b.canton || '').toLowerCase().includes(q)
+    || (b.province || '').toLowerCase().includes(q);
+
+  return inCat && inQuery;
+});
+
+
+      
+      // list
+      listEl.innerHTML = '';
+      filtered.forEach(b => {
+        const cat = CATS.find(c=>c.id===b.category);
+const card = document.createElement('div');
+card.className = 'card border-0 shadow-sm';
+card.innerHTML = `
+  <div id="carousel-${b.id}" class="carousel slide" >
+    <div class="carousel-inner">
+      ${b.images.map((img, i) => `
+        <div class="carousel-item ${i === 0 ? 'active' : ''}">
+          <img src="${img}" class="d-block w-100 card-img-top biz-cover" alt="Foto de ${b.name}">
+        </div>
+      `).join('')}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-${b.id}" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#carousel-${b.id}" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Siguiente</span>
+    </button>
+  </div>
+
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-start">
+      <h6 class="card-title mb-1">${b.name}</h6>
+      <span class="badge" style="background:${cat.color}">${cat.name}</span>
+    </div>
+    <div class="text-secondary small mb-2">${b.canton || ''}${b.canton?', ':''}${b.province || ''}</div>
+
+<div class="d-flex flex-wrap gap-3 small">
+  ${b.phone ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Llamar')" class="link-plain" href="tel:${b.phone.replace(/\s/g,'')}"><i class="bi bi-telephone me-1"></i>Llamar</a>` : ''}
+
+  ${b.whatsapp ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','WhatsApp')" class="link-plain" target="_blank" rel="noreferrer" href="${makeWaLink(b.whatsapp)}"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
+
+  <a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Mapa')" class="link-plain" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=${b.lat},${b.lng}">
+    <i class="bi bi-geo-alt me-1"></i>Cómo llegar
+  </a>
+
+  ${b.website ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Sitio web')" class="link-plain" target="_blank" rel="noreferrer" href="${b.website}"><i class="bi bi-globe2 me-1"></i>Sitio web</a>` : ''}
+
+  ${b.catalogo ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Catálogo PDF')" class="link-plain" target="_blank" rel="noreferrer" href="${b.catalogo}"><i class="bi bi-file-earmark-pdf me-1"></i>Ver catálogo</a>` : ''}
+
+  ${b.facebook ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Facebook')" class="link-plain" target="_blank" rel="noreferrer" href="${b.facebook}"><i class="bi bi-facebook me-1"></i>Facebook</a>` : ''}
+
+  ${b.instagram ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','Instagram')" class="link-plain" target="_blank" rel="noreferrer" href="${b.instagram}"><i class="bi bi-instagram me-1"></i>Instagram</a>` : ''}
+
+  ${b.tiktok ? `<a onclick="registrarClick('${b.name || b.nombre || 'Negocio sin nombre'}','TikTok')" class="link-plain" target="_blank" rel="noreferrer" href="${b.tiktok}"><i class="bi bi-tiktok me-1"></i>TikTok</a>` : ''}
+</div>
+
+
+
+  </div>
+`;
+
+
+
+        // focus on click
+        card.onclick = () => { map.setView([b.lat, b.lng], 14); };
+        listEl.appendChild(card);
+      });
+
+     // markers
+markers.forEach(m => map.removeLayer(m));
+markers = [];
+const group = L.featureGroup();
+
+filtered.forEach(b => {
+  const cat = CATS.find(c=>c.id===b.category);
+  const marker = L.circleMarker([b.lat, b.lng], {
+    radius: 8,
+    color: cat.color,
+    fillColor: cat.color,
+    fillOpacity: .85,
+    weight: 1
+  })
+.bindPopup(`
+  ${b.image ? `<img loading="lazy" src="${b.image}" alt="Foto de ${b.name}" class="biz-popup">` : ''}
+  <div class='fw-semibold mb-1'>${b.name}</div>
+  <div class='text-secondary small mb-2'>${b.canton || ''}${b.canton?', ':''}${b.province || ''}</div>
+  <div class='d-flex flex-wrap gap-3 small'>
+    ${b.phone ? `<a class="text-decoration-none" href="tel:${b.phone.replace(/\s/g,'')}"><i class="bi bi-telephone me-1"></i>Llamar</a>` : ''}
+    ${b.whatsapp ? `<a class="text-decoration-none" target="_blank" rel="noreferrer" href="${makeWaLink(b.whatsapp)}"><i class="bi bi-whatsapp me-1"></i>WhatsApp</a>` : ''}
+    <a class="text-decoration-none" target="_blank" rel="noreferrer" href="https://maps.google.com/?q=${b.lat},${b.lng}"><i class="bi bi-geo-alt me-1"></i>Cómo llegar</a>
+    ${b.website ? `<a class="text-decoration-none" target="_blank" rel="noreferrer" href="${b.website}"><i class="bi bi-globe2 me-1"></i>Sitio web</a>` : ''}
+  </div>
+`)
+
+
+  /* === NOMBRE SIEMPRE VISIBLE === */
+  .bindTooltip(b.name, {
+    permanent: true,
+    direction: 'top',
+    offset: [0, -10],
+    className: 'biz-label'
+  });
+
+  marker.addTo(map);
+  group.addLayer(marker);
+  markers.push(marker);
+});
+
+if (filtered.length) map.fitBounds(group.getBounds(), { padding: [40, 40] });
+
+      
+    }
+
+    
+    
+
+    // initial render
+    render();
+
+    // ---- Settings modal ----
+    const sbUrl = document.getElementById('sbUrl');
+    const sbKey = document.getElementById('sbKey');
+    sbUrl.value = localStorage.getItem('SUPABASE_URL') || '';
+    sbKey.value = localStorage.getItem('SUPABASE_ANON_KEY') || '';
+    document.getElementById('saveSettingsBtn').onclick = () => {
+      localStorage.setItem('SUPABASE_URL', sbUrl.value.trim());
+      localStorage.setItem('SUPABASE_ANON_KEY', sbKey.value.trim());
+      location.reload();
+    };
+
+   
+  </script>
+
+  <!-- AOS JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000,   // duración de la animación en ms
+    once: true        // animar solo una vez al hacer scroll
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<section style="font-family: 'Poppins', sans-serif; background-color: #f7f9f8; padding: 60px 20px;">
+  <h2 style="text-align:center; font-size: 2rem; color:#14532d; margin-bottom: 1rem;">
+    🌿 Planes de membresía – AndoVineando Costa Rica
+  </h2>
+  <p style="text-align:center; color:#475569; max-width:650px; margin:0 auto 40px;">
+    Conectá tu negocio con el turismo responsable. Elige el plan que mejor se adapte a tus necesidades y sé parte de la red de emprendimientos locales verificados 🌎
+  </p>
+
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:30px;">
+
+    <!-- Plan Gratuito -->
+    <div style="background-color:white; border:2px solid #d1d5db; border-radius:20px; width:320px; box-shadow:0 4px 10px rgba(0,0,0,0.05); padding:25px;">
+      <h3 style="color:#047857; text-align:center;">🟢 Plan Gratuito</h3>
+      <p style="text-align:center; color:#64748b;">Perfecto para empezar a formar parte del directorio.</p>
+      <ul style="list-style:none; padding:0; color:#374151; line-height:1.8;">
+        <li>✅ Inclusión en el mapa interactivo</li>
+        <li>✅ Nombre y categoría del negocio</li>
+        <li>✅ Incluye solamente 2 fotografías</li>      
+        <li>✅ Enlace a WhatsApp</li>      
+        <li>✅ Sello de negocio costarricense verificado</li>
+        <li>✅ Enlace a WhatsApp</li>
+        <li>❌ No cuenta con enlaces externos a redes sociales, cómo llegar ni catálogo en PDF.</li>
+        <li>❌ No incluye estadísticas de visitas.</li>
+        <li>❌ No aparece en campañas promocionales.</li>
+        <li>❌ No tiene visibilidad internacional (solo en idioma español).</li>
+        <li>❌ No recibe alertas o reportes de rendimiento del perfil.</li>
+
+      </ul>
+      <div style="text-align:center; margin-top:20px;">
+        <button style="background-color:#047857; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">
+          Registrarme aquí
+        </button>
+      </div>
+    </div>
+
+    <!-- Plan Premium -->
+    <div style="background-color:white; border:3px solid #16a34a; border-radius:20px; width:340px; box-shadow:0 6px 15px rgba(0,0,0,0.1); padding:30px;">
+      <h3 style="color:#14532d; text-align:center;">🌟 Plan Premium</h3>
+      <h4 style="text-align:center; color:#15803d;">₡20,000 / mes</h4>
+      <p style="text-align:center; color:#64748b;">Tu negocio destacado con foto, contacto y promoción mensual.</p>
+      <ul style="list-style:none; padding:0; color:#374151; line-height:1.8;">
+        <li>✅ Inclusión en el mapa interactivo</li>
+        <li>✅ Incluye 6 fotos y descripción personalizada</li>
+        <li>✅ Enlace directo a WhatsApp, llamar, sitio web, redes (Facebook, Instagram, TikTok), y cómo llegar.</li>
+        <li>✅ Botón para ver menú o catálogo PDF</li>
+        <li>✅ Estadísticas de visitas y clics</li>
+        <li>✅ Soporte personalizado vía WhatsApp (Prioridad)</li>
+        <li>✅ Participación en campañas de anuncios</li>
+        <li>✅ Edición flexible: pueden actualizar su información o fotos cuando quieran.</li>
+
+      </ul>
+    <div style="text-align:center; margin-top:25px;">
+        <button style="background-color:#16a34a; color:white; border:none; padding:12px 25px; border-radius:10px; cursor:pointer; font-weight:bold;">
+          Unirme al plan premium
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align:center; margin-top:40px; color:#334155;">
+    💳 Pagos por SINPE Móvil o transferencia bancaria.  
+    <strong>10% de descuento</strong> por pago trimestral 🌺
+  </p>
+</section>
+
+
+<section class="cta-ocean py-5">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8">
+        <div class="glass-card p-4 p-lg-5" data-aos="fade-up">
+          <h2 class="fw-bold mb-3">¿Te gustaría agregar tu negocio?</h2>
+          <p class="lead mb-4">
+            Escríbenos a 
+   WhatsApp
+            </a> 
+            y conversemos.
+          </p>
+
+          <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a class="btn btn-ghost-light btn-lg" 
+               href="https://wa.me/50684069995?text=Hola%2C%20quiero%20agregar%20mi%20negocio%20a%20Todo%20que%20Ver"
+               target="_blank" rel="noreferrer" aria-label="Escribir por WhatsApp">
+              <i class="bi bi-whatsapp me-2"></i> WhatsApp
+            </a>
+
+          </div>
+       
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<style>
+  /* CTA azul + verde */
+.cta-ocean {
+  position: relative;
+  color: #fff;
+background: linear-gradient(120deg, #1E3A8A 0%, #2563EB 50%, #38BDF8 100%);
+  overflow: hidden;
+  font-family: 'Lato', sans-serif;
+}
+.cta-ocean .glass-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.16);
+  backdrop-filter: blur(6px);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,.15);
+}
+
+/* Botones */
+.btn-ghost-light {
+  background: transparent;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.65);
+  border-radius: 999px;
+}
+.btn-ghost-light:hover { 
+  background: rgba(255,255,255,.08); 
+  color: #fff; 
+  border-color: #fff;
+}
+.btn-ink {
+  background: #fff;
+  color: #0f172a;
+  border: 1px solid #fff;
+  border-radius: 999px;
+}
+.btn-ink:hover { 
+  background: #f8fafc; 
+  color: #0f172a;
+}
+
+/* Link blanco con subrayado sutil */
+.link-white-underline {
+  color: #fff;
+  text-decoration: underline;
+  text-decoration-color: rgba(255,255,255,.6);
+}
+.link-white-underline:hover { text-decoration-color: #fff; }
+
+</style>
+
+
+<style>
+  .footer {
+  position: relative;
+  color: #fff;
+  background: url('./img/footerbg.JPG') center/cover no-repeat; /* <-- Cambiá la ruta */
+  height: 80vh;
+}
+
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.144); /* capa oscura encima de la imagen */
+}
+
+.footer .container {
+  position: relative;
+  z-index: 1; /* asegura que el contenido esté encima del overlay */
+}
+
+.footer-logo {
+  height: 200px;
+  width: auto;
+}
+.footer a {
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+
+</style>
+
+<footer class="footer pt-5 pb-4 mt-0" style="font-family: 'Lato', sans-serif;">
+  <div class="container">
+    <div class="row gy-4 justify-content-center text-center">
+      <!-- Logo + descripción -->
+      <div class="col-lg-6">
+        <a href="#" class="d-flex justify-content-center align-items-center gap-2 mb-3">
+          <img src="./img/logo.png" alt="¡Ando Vineando!" class="footer-logo">
+        </a>
+        <p class="medium">
+          El directorio digital de <strong>negocios costarricenses verificados</strong>.  
+          Hoteles, restaurantes, galerias de arte, transporte privado, tour operadores, y más.
+          Hecho en Costa Rica, para Costa Rica.
+        </p>
+      </div>
+    </div>
+
+<!-- Línea inferior -->
+<hr class="border-light mt-4">
+<div class="text-center medium text-light">
+  © <span id="year"></span> Ando Vineando. Hecho en Costa Rica por 
+  <a href="https://www.nativainnovations.com/" target="_blank" style="color: #ffffff;">Nativa Innovations</a>
+  <br>
+  <a href="/terminos.html" class="text-light small text-decoration-none">Términos de Uso</a> |
+  <a href="/privacidad.html" class="text-light small text-decoration-none">Política de Privacidad</a>
+</div>
+
+  </div>
+</footer>
+
+
+<script>
+async function registrarClick(negocioId, elemento) {
+  const API_URL = "https://k4j6oqjh10.execute-api.us-east-1.amazonaws.com/prod"; // tu URL real
+
+  const payload = {
+    id: crypto.randomUUID(),
+    negocio_id: negocioId,
+    elemento: elemento,
+    fecha: new Date().toISOString(),
+    dispositivo: /Mobi|Android/i.test(navigator.userAgent) ? "mobile" : "desktop"
+  };
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      console.log("✅ Click guardado en AWS DynamoDB");
+    } else {
+      console.error("❌ Error al guardar:", await res.text());
+    }
+  } catch (err) {
+    console.error("❌ Error de red:", err);
+  }
+}
+
+
+</script>
+
+
+
+
+
+
+
+
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+
+
+
+<script>
+  // Año automático en el footer
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
